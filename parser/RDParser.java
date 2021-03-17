@@ -4,11 +4,13 @@ import ast.*;
 import lexer.Lexer;
 import lexer.TOKEN;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 //<stmtList> := <statement>+
 //<statement> := <printStmt> | <printLineStmt>
-//<printStmt> := print <Expr>;
-//<printLineStmt>:= printLine <Expr>;
+//<printStmt> := print(<Expr>);
+//<printLineStmt>:= printLine(<Expr>);
 //<Expr> ::= <Term> | <Term> { + | - } <Expr>
 //<Term> ::= <Factor> | <Factor> {*|/} <Term>
 //<Factor>::= <number> | ( <expr> ) | {+|-} <factor>
@@ -26,7 +28,7 @@ public class RDParser extends Lexer {
     }
 
     private List<Stmt> StatementList() throws Exception {
-        List<Stmt> stmtList = null;
+        List<Stmt> stmtList = new ArrayList();
         while (this.currentToken != TOKEN.EOP) {
             stmtList.add(Statement());
         }
@@ -37,8 +39,16 @@ public class RDParser extends Lexer {
         switch (this.currentToken) {
             case PRINT:
                 this.setNewCurrentToken();
+                if (this.currentToken != TOKEN.OPAREN) {
+                    throw new Exception("Expected Open Parentheses, got " + this.currentToken);
+                }
+                this.setNewCurrentToken();
                 return this.PrintStmt();
             case PRINTLN:
+                this.setNewCurrentToken();
+                if (this.currentToken != TOKEN.OPAREN) {
+                    throw new Exception("Expected Open Parentheses, got " + this.currentToken);
+                }
                 this.setNewCurrentToken();
                 return this.PrintLineStmt();
             default:
@@ -48,20 +58,28 @@ public class RDParser extends Lexer {
 
     private Stmt PrintStmt() throws Exception {
         Exp exp = this.Expr();
-        if (this.currentToken == TOKEN.SEMI) {
+        if (this.currentToken == TOKEN.CPAREN) {
             this.setNewCurrentToken();
-            return new PrintStatement(exp);
+            if (this.currentToken == TOKEN.SEMI) {
+                this.setNewCurrentToken();
+                return new PrintStatement(exp);
+            }
+            throw new Exception("Expected Semi colon, got " + this.currentToken);
         }
-        throw new Exception("Expected Semi colon, got " + this.currentToken);
+        throw new Exception("Expected Close Parentheses, got " + this.currentToken);
     }
 
     private Stmt PrintLineStmt() throws Exception {
         Exp exp = this.Expr();
-        if (this.currentToken == TOKEN.SEMI) {
+        if (this.currentToken == TOKEN.CPAREN) {
             this.setNewCurrentToken();
-            return new PrintLineStatement(exp);
+            if (this.currentToken == TOKEN.SEMI) {
+                this.setNewCurrentToken();
+                return new PrintLineStatement(exp);
+            }
+            throw new Exception("Expected Semi colon, got " + this.currentToken);
         }
-        throw new Exception("Expected Semi colon, got " + this.currentToken);
+        throw new Exception("Expected Close Parentheses, got " + this.currentToken);
     }
 
     private Exp Expr() throws Exception {

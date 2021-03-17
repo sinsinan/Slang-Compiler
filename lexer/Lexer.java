@@ -20,6 +20,15 @@ public class Lexer {
         }
         TOKEN tok;
         switch (this.exp.charAt(this.index)) {
+            case '\n':
+            case '\t':
+                this.index++;
+                tok = this.getToken();
+                break;
+            case ';':
+                this.index++;
+                tok = TOKEN.SEMI;
+                break;
             case '+':
                 this.index++;
                 tok = TOKEN.PLUS;
@@ -58,18 +67,8 @@ public class Lexer {
                 break;
             default:
                 if (Character.isLetter(this.exp.charAt(this.index))) {
-                    String possibleKeyWord = "";
-                    TOKEN tokenFromKeyWord = TOKEN.INVALID;
-                    while (Character.isLetter(this.exp.charAt(this.index))) {
-                        possibleKeyWord += this.exp.charAt(this.index);
-                        this.index++;
-                        tokenFromKeyWord = this.keyWordTable.getTokenFromKeyWord(possibleKeyWord);
-                        if (tokenFromKeyWord != TOKEN.INVALID) {
-                            break;
-                        }
-                    }
-                    if (tokenFromKeyWord != TOKEN.INVALID) {
-                        tok = tokenFromKeyWord;
+                    tok = this.getKeyWordToken();
+                    if (tok != TOKEN.INVALID) {
                         break;
                     }
                 }
@@ -91,5 +90,20 @@ public class Lexer {
         }
         this.number = Double.parseDouble(numberStr);
         return TOKEN.DOUBLE;
+    }
+
+    private TOKEN getKeyWordToken() {
+        String possibleKeyWord = "";
+        int tempIndex = this.index;
+        TOKEN tokenFromKeyWord = this.keyWordTable.getTokenFromKeyWord(possibleKeyWord);
+        while (this.keyWordTable.getKeywordMatchCount(possibleKeyWord) > 0) {
+            if (this.keyWordTable.getTokenFromKeyWord(possibleKeyWord) != TOKEN.INVALID) {
+                tokenFromKeyWord = this.keyWordTable.getTokenFromKeyWord(possibleKeyWord);
+                this.index = tempIndex;
+            }
+            possibleKeyWord += this.exp.charAt(tempIndex);
+            tempIndex++;
+        }
+        return tokenFromKeyWord;
     }
 }
