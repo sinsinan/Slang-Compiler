@@ -66,11 +66,13 @@ public class Lexer {
                 tok = this.getDoubleFromString();
                 break;
             default:
-                if (Character.isLetter(this.exp.charAt(this.index))) {
-                    tok = this.getKeyWordToken();
-                    if (tok != TOKEN.INVALID) {
-                        break;
-                    }
+                tok = this.getVariableToken();
+                if (tok != TOKEN.INVALID) {
+                    break;
+                }
+                tok = this.getKeyWordToken();
+                if (tok != TOKEN.INVALID) {
+                    break;
                 }
                 System.out.println(String.format("Invalid character %c found at index %d in expression %s", this.exp.charAt(this.index), this.index, this.exp));
                 throw new Exception("Invalid character found");

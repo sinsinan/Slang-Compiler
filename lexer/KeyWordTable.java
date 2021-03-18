@@ -1,7 +1,6 @@
 package lexer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +11,9 @@ public class KeyWordTable {
     public KeyWordTable() {
         this.keyWorkMap.put("PRINT", TOKEN.PRINT);
         this.keyWorkMap.put("PRINTLINE", TOKEN.PRINTLN);
+        this.keyWorkMap.put("STRING", TOKEN.STRING);
+        this.keyWorkMap.put("NUMERIC", TOKEN.NUMERIC);
+        this.keyWorkMap.put("BOOLEAN", TOKEN.BOOLEAN);
         this.keyWordSet = this.keyWorkMap.keySet();
     }
 
