@@ -1,4 +1,4 @@
-package lexer;
+package parser;
 
 public class Symbol {
     private VAR_TYPE type;
@@ -63,5 +63,9 @@ public class Symbol {
             throw new Exception("Variable not initialized");
         }
         return this.value;
+    }
+
+    public VAR_TYPE getType() {
+        return type;
     }
 }
