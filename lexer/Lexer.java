@@ -6,6 +6,7 @@ public class Lexer {
     int index;
     double number;
     KeyWordTable keyWordTable;
+    String variableName;
 
     public Lexer(String exp) {
         this.exp = exp;
@@ -66,11 +67,11 @@ public class Lexer {
                 tok = this.getDoubleFromString();
                 break;
             default:
-                tok = this.getVariableToken();
+                tok = this.getKeyWordToken();
                 if (tok != TOKEN.INVALID) {
                     break;
                 }
-                tok = this.getKeyWordToken();
+                tok = this.getVariableToken();
                 if (tok != TOKEN.INVALID) {
                     break;
                 }
@@ -107,5 +108,23 @@ public class Lexer {
             tempIndex++;
         }
         return tokenFromKeyWord;
+    }
+
+    private TOKEN getVariableToken() {
+        if (Character.isLetter(this.exp.charAt(this.index))) {
+            this.variableName = "";
+            while (Character.isAlphabetic(this.exp.charAt(this.index)) || this.exp.charAt(this.index)=='_') {
+                this.variableName += this.exp.charAt(this.index);
+                this.index++;
+            }
+            return TOKEN.VARIABLE;
+
+        } else {
+            return TOKEN.INVALID;
+        }
+    }
+
+    public String getVariableName() {
+        return variableName;
     }
 }

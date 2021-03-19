@@ -1,4 +1,4 @@
-package lexer;
+package parser;
 
 public enum VAR_TYPE {
     STRING,
