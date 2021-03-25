@@ -7,6 +7,7 @@ public class Lexer {
     double number;
     KeyWordTable keyWordTable;
     String variableName;
+    String quotedString;
 
     public Lexer(String exp) {
         this.exp = exp;
@@ -54,6 +55,10 @@ public class Lexer {
                 this.index++;
                 tok = TOKEN.CPAREN;
                 break;
+            case '=':
+                this.index++;
+                tok = TOKEN.ASSIGNMENT;
+                break;
             case '0':
             case '1':
             case '2':
@@ -65,6 +70,10 @@ public class Lexer {
             case '8':
             case '9':
                 tok = this.getDoubleFromString();
+                break;
+            case '"':
+                this.parseQuotedString();
+                tok = TOKEN.QUOTED_STRING;
                 break;
             default:
                 tok = this.getKeyWordToken();
@@ -113,18 +122,42 @@ public class Lexer {
     private TOKEN getVariableToken() {
         if (Character.isLetter(this.exp.charAt(this.index))) {
             this.variableName = "";
-            while (Character.isAlphabetic(this.exp.charAt(this.index)) || this.exp.charAt(this.index)=='_') {
+            while (Character.isAlphabetic(this.exp.charAt(this.index)) || this.exp.charAt(this.index) == '_') {
                 this.variableName += this.exp.charAt(this.index);
                 this.index++;
             }
-            return TOKEN.VARIABLE;
+            return TOKEN.VARIABLE_NAME;
 
         } else {
             return TOKEN.INVALID;
         }
     }
 
-    public String getVariableName() {
-        return variableName;
+    private void parseQuotedString() throws Exception {
+        this.quotedString = "";
+        int quoteCount = 0;
+        if (this.exp.charAt(this.index) == '"') {
+            while ((this.index < this.length) && quoteCount < 2) {
+                if (this.exp.charAt(this.index) == '"') {
+                    quoteCount++;
+                } else {
+                    this.quotedString += this.exp.charAt(this.index);
+                }
+                this.index++;
+            }
+        }
+        if (quoteCount != 2) {
+            throw new Exception("Quoted string not ended");
+        }
     }
+
+    public String getVariableName() {
+        return this.variableName;
+    }
+
+    public String getQuotedString() {
+        return this.quotedString;
+    }
+
+
 }
