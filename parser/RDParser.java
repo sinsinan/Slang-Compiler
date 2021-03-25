@@ -5,21 +5,24 @@ import lexer.Lexer;
 import lexer.TOKEN;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 //<stmtList> := <statement>+
-//<statement> := <printStmt> | <printLineStmt>
+//<statement> := <printStmt> | <printLineStmt> | <varDeclareStmt> | <varAssignmentStmt>
+//<varDeclareStmt> := STRING <varName>; | NUMERIC <varName>; | BOOLEAN <varName>;
+//<varAssignmentStmt> := varName = <Expr> ;
 //<printStmt> := print(<Expr>);
 //<printLineStmt>:= printLine(<Expr>);
 //<Expr> ::= <Term> | <Term> { + | - } <Expr>
 //<Term> ::= <Factor> | <Factor> {*|/} <Term>
-//<Factor>::= <number> | ( <expr> ) | {+|-} <factor>
+//<Factor>::= <number> | ( <expr> ) | {+|-} <factor> | TRUE | FALSE | quotedString
 
 public class RDParser extends Lexer {
     private TOKEN currentToken;
+    SymbolTable symbolTable;
 
     public RDParser(String exp) {
         super(exp);
+        this.symbolTable = new SymbolTable();
     }
 
     public List<Stmt> getStmtList() throws Exception {
@@ -51,8 +54,14 @@ public class RDParser extends Lexer {
                 }
                 this.setNewCurrentToken();
                 return this.PrintLineStmt();
+            case STRING:
+            case NUMERIC:
+            case BOOLEAN:
+                this.DeclareVariable();
+            case VARIABLE_NAME:
+                this.AssignToVariable();
             default:
-                throw new Exception("Expected PRINT or PRINTLN, got " + this.currentToken);
+                throw new Exception("Expected statement starters got " + this.currentToken);
         }
     }
 
@@ -105,29 +114,66 @@ public class RDParser extends Lexer {
     }
 
     private Exp Factor() throws Exception {
-        if (this.currentToken == TOKEN.DOUBLE) {
-            Exp e1 = new NumericConstant(this.getNumber());
-            this.setNewCurrentToken();
-            return e1;
-        } else if (this.currentToken == TOKEN.OPAREN) {
-            this.setNewCurrentToken();
-            Exp exp = this.Expr();
-            if (this.currentToken == TOKEN.CPAREN) {
+        Exp exp;
+        switch (this.currentToken) {
+            case DOUBLE:
+                exp = new NumericConstant(this.getNumber());
                 this.setNewCurrentToken();
                 return exp;
-            }
-            throw new Exception("Close parenthesis not found");
-        } else if (this.currentToken == TOKEN.MINUS || this.currentToken == TOKEN.PLUS) {
-            TOKEN lastToken = this.currentToken;
-            this.setNewCurrentToken();
-            Exp exp = this.Factor();
-            return new UnaryExp(exp, lastToken == TOKEN.PLUS ? OPERATOR.PLUS : OPERATOR.MINUS);
-        } else {
-            throw new Exception("Unexpected end");
+            case OPAREN:
+                this.setNewCurrentToken();
+                exp = this.Expr();
+                if (this.currentToken == TOKEN.CPAREN) {
+                    this.setNewCurrentToken();
+                    return exp;
+                }
+                throw new Exception("Close parenthesis not found");
+            case MINUS:
+            case PLUS:
+                TOKEN lastToken = this.currentToken;
+                this.setNewCurrentToken();
+                exp = this.Factor();
+                return new UnaryExp(exp, lastToken == TOKEN.PLUS ? OPERATOR.PLUS : OPERATOR.MINUS);
+            default:
+                throw new Exception("Unexpected end");
         }
     }
 
     private void setNewCurrentToken() throws Exception {
         this.currentToken = this.getToken();
+    }
+
+    private void DeclareVariable() throws Exception {
+        VAR_TYPE varType;
+        switch (this.currentToken) {
+            case STRING:
+                varType = VAR_TYPE.STRING;
+                break;
+            case BOOLEAN:
+                varType = VAR_TYPE.BOOLEAN;
+                break;
+            case DOUBLE:
+                varType = VAR_TYPE.NUMERIC;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + this.currentToken);
+        }
+        this.setNewCurrentToken();
+        if (this.currentToken != TOKEN.VARIABLE_NAME) {
+            throw new Exception("Expected Variable name got " + this.currentToken);
+        }
+        this.symbolTable.declareVariable(this.getVariableName(), varType);
+        this.setNewCurrentToken();
+        if (this.currentToken != TOKEN.CPAREN) {
+            throw new Exception("Expected closed Parentheses, got " + this.currentToken);
+        }
+    }
+
+    private void AssignToVariable() throws Exception {
+        String currentVariableName = this.getVariableName();
+        this.setNewCurrentToken();
+        if (this.currentToken != TOKEN.ASSIGNMENT) {
+            throw new Exception("Expected assignment, got " + this.currentToken);
+        }
     }
 }

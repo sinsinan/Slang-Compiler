@@ -13,8 +13,12 @@ public enum TOKEN {
     PRINT,
     PRINTLN, //Print line
     INVALID,
-    VARIABLE, //Denotes a variable
+    VARIABLE_NAME, //Denotes a variable
     STRING,
     NUMERIC,
     BOOLEAN,
+    QUOTED_STRING,
+    TRUE,
+    FALSE,
+    ASSIGNMENT
 }
