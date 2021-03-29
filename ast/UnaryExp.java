@@ -1,5 +1,7 @@
 package ast;
 
+import parser.Symbol;
+
 public class UnaryExp extends Exp{
     private Exp _exp;
     private OPERATOR _op;
@@ -10,13 +12,13 @@ public class UnaryExp extends Exp{
     }
 
     @Override
-    public double Evaluate(RUNTIME_CONTEXT context) {
+    public Symbol Evaluate(RUNTIME_CONTEXT context) throws Exception {
         switch (this._op) {
             case PLUS:
-                return this._exp.Evaluate(context);
+                return (new UnaryPlus(this._exp)).Evaluate(context);
             case MINUS:
-                return -this._exp.Evaluate(context);
+                return (new UnaryMinus(this._exp)).Evaluate(context);
         }
-        return Double.NaN;
+        throw new Exception("UnaryExp, Evaluate, expected operator to be any of (PLUS, MINUS), got "+this._op);
     }
 }

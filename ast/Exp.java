@@ -1,4 +1,7 @@
 package ast;
+
+import parser.Symbol;
+
 public abstract class Exp {
-    public abstract double Evaluate(RUNTIME_CONTEXT context);
+    public abstract Symbol Evaluate(RUNTIME_CONTEXT context) throws Exception;
 }

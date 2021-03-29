@@ -31,7 +31,7 @@ public class Symbol {
     }
 
     public void setValue(double val) throws Exception {
-        if (this.type != VAR_TYPE.BOOLEAN) {
+        if (this.type != VAR_TYPE.NUMERIC) {
             throw new Exception("Cannot assign double to the variable of type " + this.type);
         }
         this.value = String.valueOf(val);
