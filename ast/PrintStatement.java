@@ -1,5 +1,7 @@
 package ast;
 
+import parser.Symbol;
+
 public class PrintStatement extends Stmt{
     private Exp exp;
 
@@ -8,9 +10,9 @@ public class PrintStatement extends Stmt{
     }
 
     @Override
-    public boolean Evaluate(RUNTIME_CONTEXT context) {
-        double val = this.exp.Evaluate(context);
-        System.out.print(val);
+    public boolean Evaluate(RUNTIME_CONTEXT context) throws Exception {
+        Symbol val = this.exp.Evaluate(context);
+        System.out.print(val.getStringValue());
         return true;
     }
 }

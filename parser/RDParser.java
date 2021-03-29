@@ -134,6 +134,7 @@ public class RDParser extends Lexer {
                 this.setNewCurrentToken();
                 exp = this.Factor();
                 return new UnaryExp(exp, lastToken == TOKEN.PLUS ? OPERATOR.PLUS : OPERATOR.MINUS);
+
             default:
                 throw new Exception("Unexpected end");
         }

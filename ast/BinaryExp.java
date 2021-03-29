@@ -1,5 +1,7 @@
 package ast;
 
+import parser.Symbol;
+
 public class BinaryExp extends Exp {
     private Exp _exp1, _exp2;
     private OPERATOR _op;
@@ -11,17 +13,17 @@ public class BinaryExp extends Exp {
     }
 
     @Override
-    public double Evaluate(RUNTIME_CONTEXT context) {
+    public Symbol Evaluate(RUNTIME_CONTEXT context) throws Exception {
         switch (this._op) {
             case PLUS:
-                return this._exp1.Evaluate(context) + this._exp2.Evaluate(context);
+                return (new BinaryPlus(this._exp1, this._exp2)).Evaluate(context);
             case MINUS:
-                return this._exp1.Evaluate(context) - this._exp2.Evaluate(context);
+                return (new BinaryMinus(this._exp1, this._exp2)).Evaluate(context);
             case MUL:
-                return this._exp1.Evaluate(context) * this._exp2.Evaluate(context);
+                return (new BinaryMult(this._exp1, this._exp2)).Evaluate(context);
             case DIV:
-                return this._exp1.Evaluate(context) / this._exp2.Evaluate(context);
+                return (new BinaryDiv(this._exp1, this._exp2)).Evaluate(context);
         }
-        return Double.NaN;
+        return null;
     }
 }

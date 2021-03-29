@@ -1,13 +1,16 @@
 package ast;
+
+import parser.Symbol;
+
 public class NumericConstant extends Exp{
-    private double _value;
+    private Symbol symbol;
 
     public NumericConstant(double value) {
-        this._value = value;
+        symbol = new Symbol(value);
     }
 
     @Override
-    public double Evaluate(RUNTIME_CONTEXT context) {
-        return this._value;
+    public Symbol Evaluate(RUNTIME_CONTEXT context) {
+        return this.symbol;
     }
 }
