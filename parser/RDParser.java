@@ -9,7 +9,7 @@ import java.util.List;
 //<stmtList> := <statement>+
 //<statement> := <printStmt> | <printLineStmt> | <varDeclareStmt> | <varAssignmentStmt>
 //<varDeclareStmt> := STRING <varName>; | NUMERIC <varName>; | BOOLEAN <varName>;
-//<varAssignmentStmt> := varName = <Expr> ;
+//<varAssignmentStmt> := <varName> = <Expr> ;
 //<printStmt> := print(<Expr>);
 //<printLineStmt>:= printLine(<Expr>);
 //<Expr> ::= <Term> | <Term> { + | - } <Expr>
@@ -32,8 +32,12 @@ public class RDParser extends Lexer {
 
     private List<Stmt> StatementList() throws Exception {
         List<Stmt> stmtList = new ArrayList();
+        Stmt currentStatement;
         while (this.currentToken != TOKEN.EOP) {
-            stmtList.add(Statement());
+            currentStatement = Statement();
+            if (currentStatement != null) {
+                stmtList.add(currentStatement);
+            }
         }
         return stmtList;
     }
@@ -57,9 +61,9 @@ public class RDParser extends Lexer {
             case STRING:
             case NUMERIC:
             case BOOLEAN:
-                this.DeclareVariable();
+                return this.DeclareVariable();
             case VARIABLE_NAME:
-                this.AssignToVariable();
+                return this.AssignToVariable();
             default:
                 throw new Exception("Expected statement starters got " + this.currentToken);
         }
@@ -134,7 +138,18 @@ public class RDParser extends Lexer {
                 this.setNewCurrentToken();
                 exp = this.Factor();
                 return new UnaryExp(exp, lastToken == TOKEN.PLUS ? OPERATOR.PLUS : OPERATOR.MINUS);
-
+            case QUOTED_STRING:
+                String quotedString = this.getQuotedString();
+                this.setNewCurrentToken();
+                return new StringConstant(quotedString);
+            case TRUE:
+            case FALSE:
+                boolean boolValue = this.currentToken == TOKEN.TRUE;
+                this.setNewCurrentToken();
+                return new BooleanConstant(boolValue);
+            case VARIABLE_NAME:
+                this.setNewCurrentToken();
+                return new Variable(this.getVariableName(), this.symbolTable);
             default:
                 throw new Exception("Unexpected end");
         }
@@ -144,7 +159,7 @@ public class RDParser extends Lexer {
         this.currentToken = this.getToken();
     }
 
-    private void DeclareVariable() throws Exception {
+    private Stmt DeclareVariable() throws Exception {
         VAR_TYPE varType;
         switch (this.currentToken) {
             case STRING:
@@ -153,11 +168,11 @@ public class RDParser extends Lexer {
             case BOOLEAN:
                 varType = VAR_TYPE.BOOLEAN;
                 break;
-            case DOUBLE:
+            case NUMERIC:
                 varType = VAR_TYPE.NUMERIC;
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + this.currentToken);
+                throw new IllegalStateException("Expected STRING,BOOLEAN,DOUBLE value: " + this.currentToken);
         }
         this.setNewCurrentToken();
         if (this.currentToken != TOKEN.VARIABLE_NAME) {
@@ -165,16 +180,25 @@ public class RDParser extends Lexer {
         }
         this.symbolTable.declareVariable(this.getVariableName(), varType);
         this.setNewCurrentToken();
-        if (this.currentToken != TOKEN.CPAREN) {
-            throw new Exception("Expected closed Parentheses, got " + this.currentToken);
+        if (this.currentToken != TOKEN.SEMI) {
+            throw new Exception("Expected semi colon, got " + this.currentToken);
         }
+        this.setNewCurrentToken();
+        return null;
     }
 
-    private void AssignToVariable() throws Exception {
+    private Stmt AssignToVariable() throws Exception {
         String currentVariableName = this.getVariableName();
         this.setNewCurrentToken();
         if (this.currentToken != TOKEN.ASSIGNMENT) {
             throw new Exception("Expected assignment, got " + this.currentToken);
         }
+        this.setNewCurrentToken();
+        Exp expressionToBeAssigned = Expr();
+        if (this.currentToken != TOKEN.SEMI) {
+            throw new Exception("Expected semi colon, got " + this.currentToken);
+        }
+        this.setNewCurrentToken();
+        return new AssignmentStatement(currentVariableName, expressionToBeAssigned, this.symbolTable);
     }
 }

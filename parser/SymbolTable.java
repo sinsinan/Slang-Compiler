@@ -46,4 +46,12 @@ public class SymbolTable {
         }
         symbol.setValue(val);
     }
+
+    public Symbol getSymbolFromVariableName(String variableName) throws Exception {
+        Symbol symbol = this.table.get(variableName);
+        if (symbol == null) {
+            throw new Exception("Variable "+variableName+" not declared");
+        }
+        return symbol;
+    }
 }

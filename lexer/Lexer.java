@@ -24,6 +24,7 @@ public class Lexer {
         switch (this.exp.charAt(this.index)) {
             case '\n':
             case '\t':
+            case ' ':
                 this.index++;
                 tok = this.getToken();
                 break;
@@ -96,7 +97,7 @@ public class Lexer {
 
     private TOKEN getDoubleFromString() {
         String numberStr = "";
-        while (this.index < this.length && (this.exp.charAt(this.index) == '1' || this.exp.charAt(this.index) == '2' || this.exp.charAt(this.index) == '3' || this.exp.charAt(this.index) == '4' || this.exp.charAt(this.index) == '5' || this.exp.charAt(this.index) == '6' || this.exp.charAt(this.index) == '7' || this.exp.charAt(this.index) == '8' || this.exp.charAt(this.index) == '9')) {
+        while (this.index < this.length && (this.exp.charAt(this.index) == '0' || this.exp.charAt(this.index) == '1' || this.exp.charAt(this.index) == '2' || this.exp.charAt(this.index) == '3' || this.exp.charAt(this.index) == '4' || this.exp.charAt(this.index) == '5' || this.exp.charAt(this.index) == '6' || this.exp.charAt(this.index) == '7' || this.exp.charAt(this.index) == '8' || this.exp.charAt(this.index) == '9')) {
             numberStr += this.exp.charAt(this.index);
             this.index++;
         }
@@ -122,7 +123,7 @@ public class Lexer {
     private TOKEN getVariableToken() {
         if (Character.isLetter(this.exp.charAt(this.index))) {
             this.variableName = "";
-            while (Character.isAlphabetic(this.exp.charAt(this.index)) || this.exp.charAt(this.index) == '_') {
+            while (this.index < this.length && (Character.isAlphabetic(this.exp.charAt(this.index)) || this.exp.charAt(this.index) == '_')) {
                 this.variableName += this.exp.charAt(this.index);
                 this.index++;
             }
