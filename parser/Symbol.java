@@ -15,7 +15,7 @@ public class Symbol {
     }
 
     public Symbol(String val) {
-        this.type = VAR_TYPE.NUMERIC;
+        this.type = VAR_TYPE.STRING;
         this.value = val;
     }
 
@@ -38,7 +38,7 @@ public class Symbol {
     }
 
     public void setValue(String val) throws Exception {
-        if (this.type != VAR_TYPE.BOOLEAN) {
+        if (this.type != VAR_TYPE.STRING) {
             throw new Exception("Cannot assign String to the variable of type " + this.type);
         }
         this.value = val;

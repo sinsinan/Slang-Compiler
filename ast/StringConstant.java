@@ -2,10 +2,10 @@ package ast;
 
 import parser.Symbol;
 
-public class BooleanConstant extends Exp{
+public class StringConstant extends Exp{
     private Symbol symbol;
 
-    public BooleanConstant(boolean value) {
+    public StringConstant(String value) {
         symbol = new Symbol(value);
     }
 

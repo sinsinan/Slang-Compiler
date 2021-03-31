@@ -1,0 +1,9 @@
+NUMERIC a;
+NUMERIC b;
+STRING c;
+c = "HELLO";
+a=100 * 2;
+b=a + 1;
+PRINT(b);
+PRINTLINE(b);
+PRINT(c);
