@@ -1,9 +1,6 @@
-NUMERIC a;
-NUMERIC b;
 STRING c;
-c = "HELLO";
-a=100 * 2;
-b=a + 1;
-PRINT(b);
-PRINTLINE(b);
-PRINT(c);
+NUMERIC a;
+a = 3*2+1;
+c = "HELLO WORLD";
+PRINTLINE(c);
+PRINT(3*2+1);
