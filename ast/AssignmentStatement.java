@@ -18,9 +18,9 @@ public class AssignmentStatement extends Stmt {
     public boolean Evaluate(RUNTIME_CONTEXT context) throws Exception {
         Symbol symbolFromVariableName = this.symbolTable.getSymbolFromVariableName(this.variableName);
         Symbol symbolFromExpressionEvaluation = this.exp.Evaluate(context);
-//        if (symbolFromExpressionEvaluation.getType() != symbolFromVariableName.getType()) {
-//            throw new Exception("Unexpected assignment, Variable " + this.variableName + " with type " + symbolFromVariableName.getType() + " assigned value with type " + symbolFromExpressionEvaluation.getType());
-//        }
+        if (symbolFromExpressionEvaluation.getType() != symbolFromVariableName.getType()) {
+            throw new Exception("Unexpected assignment, Variable " + this.variableName + " with type " + symbolFromVariableName.getType() + " assigned value of type " + symbolFromExpressionEvaluation.getType());
+        }
         switch (symbolFromVariableName.getType()) {
             case NUMERIC:
                 this.symbolTable.setVariable(this.variableName, symbolFromExpressionEvaluation.getNumericValue());
