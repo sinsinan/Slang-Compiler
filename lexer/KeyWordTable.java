@@ -5,23 +5,23 @@ import java.util.Map;
 import java.util.Set;
 
 public class KeyWordTable {
-    private static Map<String, TOKEN> keyWorkMap;
+    private static Map<String, Token> keyWorkMap;
     private Set<String> keyWordSet;
 
     public KeyWordTable() {
-        this.keyWorkMap = new HashMap<String, TOKEN>();
-        this.keyWorkMap.put("PRINT", TOKEN.PRINT);
-        this.keyWorkMap.put("PRINTLINE", TOKEN.PRINTLN);
-        this.keyWorkMap.put("STRING", TOKEN.STRING);
-        this.keyWorkMap.put("NUMERIC", TOKEN.NUMERIC);
-        this.keyWorkMap.put("BOOLEAN", TOKEN.BOOLEAN);
-        this.keyWorkMap.put("TRUE", TOKEN.TRUE);
-        this.keyWorkMap.put("FALSE", TOKEN.FALSE);
+        this.keyWorkMap = new HashMap<String, Token>();
+        this.keyWorkMap.put("PRINT", Token.PRINT);
+        this.keyWorkMap.put("PRINTLINE", Token.PRINTLN);
+        this.keyWorkMap.put("STRING", Token.STRING);
+        this.keyWorkMap.put("NUMERIC", Token.NUMERIC);
+        this.keyWorkMap.put("BOOLEAN", Token.BOOLEAN);
+        this.keyWorkMap.put("TRUE", Token.TRUE);
+        this.keyWorkMap.put("FALSE", Token.FALSE);
         this.keyWordSet = this.keyWorkMap.keySet();
     }
 
-    public TOKEN getTokenFromKeyWord(String keyWord) {
-        return this.keyWorkMap.getOrDefault(keyWord, TOKEN.INVALID);
+    public Token getTokenFromKeyWord(String keyWord) {
+        return this.keyWorkMap.getOrDefault(keyWord, Token.INVALID);
     }
 
     public int getKeywordMatchCount(String inputKeyWord) {

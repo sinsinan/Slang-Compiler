@@ -1,12 +1,17 @@
 package ast;
 
+import ast.binaryOperations.BinaryDiv;
+import ast.binaryOperations.BinaryMinus;
+import ast.binaryOperations.BinaryMult;
+import ast.binaryOperations.BinaryPlus;
+import ast.operators.BinaryOperator;
 import parser.Symbol;
 
 public class BinaryExp extends Exp {
     private Exp _exp1, _exp2;
-    private OPERATOR _op;
+    private BinaryOperator _op;
 
-    public BinaryExp(Exp exp1, Exp exp2, OPERATOR op) {
+    public BinaryExp(Exp exp1, Exp exp2, BinaryOperator op) {
         this._exp1 = exp1;
         this._exp2 = exp2;
         this._op = op;

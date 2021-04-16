@@ -1,9 +1,11 @@
-package ast;
+package ast.binaryOperations;
 
+import ast.Exp;
+import ast.RUNTIME_CONTEXT;
 import parser.Symbol;
 import parser.VAR_TYPE;
 
-public class BinaryDiv extends Exp{
+public class BinaryDiv extends Exp {
     private Exp leftExp;
     private Exp rightExp;
 

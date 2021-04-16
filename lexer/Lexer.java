@@ -16,11 +16,11 @@ public class Lexer {
         this.keyWordTable = new KeyWordTable();
     }
 
-    public TOKEN getToken() throws Exception {
+    public Token getToken() throws Exception {
         if (this.index >= this.length) {
-            return TOKEN.EOP;
+            return Token.EOP;
         }
-        TOKEN tok;
+        Token tok;
         switch (this.exp.charAt(this.index)) {
             case '\n':
             case '\t':
@@ -30,35 +30,79 @@ public class Lexer {
                 break;
             case ';':
                 this.index++;
-                tok = TOKEN.SEMI;
+                tok = Token.SEMI;
                 break;
             case '+':
                 this.index++;
-                tok = TOKEN.PLUS;
+                tok = Token.PLUS;
                 break;
             case '-':
                 this.index++;
-                tok = TOKEN.MINUS;
+                tok = Token.MINUS;
                 break;
             case '*':
                 this.index++;
-                tok = TOKEN.MUL;
+                tok = Token.MUL;
                 break;
             case '/':
                 this.index++;
-                tok = TOKEN.DIV;
+                tok = Token.DIV;
                 break;
             case '(':
                 this.index++;
-                tok = TOKEN.OPAREN;
+                tok = Token.OPAREN;
                 break;
             case ')':
                 this.index++;
-                tok = TOKEN.CPAREN;
+                tok = Token.CPAREN;
                 break;
             case '=':
                 this.index++;
-                tok = TOKEN.ASSIGNMENT;
+                tok = Token.ASSIGNMENT;
+                if (this.index < this.length && this.exp.charAt(this.index + 1) == '=') {
+                    this.index++;
+                    tok = Token.EQ;
+                }
+                break;
+            case '<':
+                this.index++;
+                tok = Token.LT;
+                if (this.index< this.length) {
+                    switch (this.exp.charAt(this.index)){
+                        case '>':
+                            this.index++;
+                            tok = Token.NEQ;
+                            break;
+                        case '=':
+                            this.index++;
+                            tok=Token.LTE;
+                            break;
+                    }
+                }
+                break;
+            case '>':
+                this.index++;
+                tok = Token.GT;
+                if (this.index < this.length && this.exp.charAt(this.index) == '=') {
+                    this.index++;
+                    tok = Token.GTE;
+                }
+                break;
+            case '&':
+                if ((this.index+1) < this.length && this.exp.charAt(this.index+1) == '&') {
+                    this.index+=2;
+                    tok = Token.AND;
+                    break;
+                }
+            case '|':
+                if ((this.index+1) < this.length && this.exp.charAt(this.index+1) == '|') {
+                    this.index+=2;
+                    tok = Token.OR;
+                    break;
+                }
+            case '!':
+                this.index++;
+                tok = Token.NOT;
                 break;
             case '0':
             case '1':
@@ -74,15 +118,15 @@ public class Lexer {
                 break;
             case '"':
                 this.parseQuotedString();
-                tok = TOKEN.QUOTED_STRING;
+                tok = Token.QUOTED_STRING;
                 break;
             default:
                 tok = this.getKeyWordToken();
-                if (tok != TOKEN.INVALID) {
+                if (tok != Token.INVALID) {
                     break;
                 }
                 tok = this.getVariableToken();
-                if (tok != TOKEN.INVALID) {
+                if (tok != Token.INVALID) {
                     break;
                 }
                 System.out.println(String.format("Invalid character %c found at index %d in expression %s", this.exp.charAt(this.index), this.index, this.exp));
@@ -95,22 +139,22 @@ public class Lexer {
         return this.number;
     }
 
-    private TOKEN getDoubleFromString() {
+    private Token getDoubleFromString() {
         String numberStr = "";
         while (this.index < this.length && (this.exp.charAt(this.index) == '0' || this.exp.charAt(this.index) == '1' || this.exp.charAt(this.index) == '2' || this.exp.charAt(this.index) == '3' || this.exp.charAt(this.index) == '4' || this.exp.charAt(this.index) == '5' || this.exp.charAt(this.index) == '6' || this.exp.charAt(this.index) == '7' || this.exp.charAt(this.index) == '8' || this.exp.charAt(this.index) == '9')) {
             numberStr += this.exp.charAt(this.index);
             this.index++;
         }
         this.number = Double.parseDouble(numberStr);
-        return TOKEN.DOUBLE;
+        return Token.DOUBLE;
     }
 
-    private TOKEN getKeyWordToken() {
+    private Token getKeyWordToken() {
         String possibleKeyWord = "";
         int tempIndex = this.index;
-        TOKEN tokenFromKeyWord = this.keyWordTable.getTokenFromKeyWord(possibleKeyWord);
+        Token tokenFromKeyWord = this.keyWordTable.getTokenFromKeyWord(possibleKeyWord);
         while (this.keyWordTable.getKeywordMatchCount(possibleKeyWord) > 0) {
-            if (this.keyWordTable.getTokenFromKeyWord(possibleKeyWord) != TOKEN.INVALID) {
+            if (this.keyWordTable.getTokenFromKeyWord(possibleKeyWord) != Token.INVALID) {
                 tokenFromKeyWord = this.keyWordTable.getTokenFromKeyWord(possibleKeyWord);
                 this.index = tempIndex;
             }
@@ -120,17 +164,17 @@ public class Lexer {
         return tokenFromKeyWord;
     }
 
-    private TOKEN getVariableToken() {
+    private Token getVariableToken() {
         if (Character.isLetter(this.exp.charAt(this.index))) {
             this.variableName = "";
             while (this.index < this.length && (Character.isAlphabetic(this.exp.charAt(this.index)) || this.exp.charAt(this.index) == '_')) {
                 this.variableName += this.exp.charAt(this.index);
                 this.index++;
             }
-            return TOKEN.VARIABLE_NAME;
+            return Token.VARIABLE_NAME;
 
         } else {
-            return TOKEN.INVALID;
+            return Token.INVALID;
         }
     }
 

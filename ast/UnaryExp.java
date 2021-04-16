@@ -1,12 +1,15 @@
 package ast;
 
+import ast.UnaryOperations.UnaryMinus;
+import ast.UnaryOperations.UnaryPlus;
+import ast.operators.BinaryOperator;
 import parser.Symbol;
 
 public class UnaryExp extends Exp{
     private Exp _exp;
-    private OPERATOR _op;
+    private BinaryOperator _op;
 
-    public UnaryExp(Exp exp, OPERATOR op) {
+    public UnaryExp(Exp exp, BinaryOperator op) {
         this._exp = exp;
         this._op = op;
     }
