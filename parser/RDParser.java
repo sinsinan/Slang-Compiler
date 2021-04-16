@@ -1,8 +1,9 @@
 package parser;
 
 import ast.*;
+import ast.operators.BinaryOperator;
 import lexer.Lexer;
-import lexer.TOKEN;
+import lexer.Token;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 //<Factor>::= <number> | ( <expr> ) | {+|-} <factor> | TRUE | FALSE | quotedString
 
 public class RDParser extends Lexer {
-    private TOKEN currentToken;
+    private Token currentToken;
     SymbolTable symbolTable;
 
     public RDParser(String exp) {
@@ -33,7 +34,7 @@ public class RDParser extends Lexer {
     private List<Stmt> StatementList() throws Exception {
         List<Stmt> stmtList = new ArrayList();
         Stmt currentStatement;
-        while (this.currentToken != TOKEN.EOP) {
+        while (this.currentToken != Token.EOP) {
             currentStatement = Statement();
             if (currentStatement != null) {
                 stmtList.add(currentStatement);
@@ -46,14 +47,14 @@ public class RDParser extends Lexer {
         switch (this.currentToken) {
             case PRINT:
                 this.setNewCurrentToken();
-                if (this.currentToken != TOKEN.OPAREN) {
+                if (this.currentToken != Token.OPAREN) {
                     throw new Exception("Expected Open Parentheses, got " + this.currentToken);
                 }
                 this.setNewCurrentToken();
                 return this.PrintStmt();
             case PRINTLN:
                 this.setNewCurrentToken();
-                if (this.currentToken != TOKEN.OPAREN) {
+                if (this.currentToken != Token.OPAREN) {
                     throw new Exception("Expected Open Parentheses, got " + this.currentToken);
                 }
                 this.setNewCurrentToken();
@@ -71,9 +72,9 @@ public class RDParser extends Lexer {
 
     private Stmt PrintStmt() throws Exception {
         Exp exp = this.Expr();
-        if (this.currentToken == TOKEN.CPAREN) {
+        if (this.currentToken == Token.CPAREN) {
             this.setNewCurrentToken();
-            if (this.currentToken == TOKEN.SEMI) {
+            if (this.currentToken == Token.SEMI) {
                 this.setNewCurrentToken();
                 return new PrintStatement(exp);
             }
@@ -84,9 +85,9 @@ public class RDParser extends Lexer {
 
     private Stmt PrintLineStmt() throws Exception {
         Exp exp = this.Expr();
-        if (this.currentToken == TOKEN.CPAREN) {
+        if (this.currentToken == Token.CPAREN) {
             this.setNewCurrentToken();
-            if (this.currentToken == TOKEN.SEMI) {
+            if (this.currentToken == Token.SEMI) {
                 this.setNewCurrentToken();
                 return new PrintLineStatement(exp);
             }
@@ -97,22 +98,22 @@ public class RDParser extends Lexer {
 
     private Exp Expr() throws Exception {
         Exp exp1 = this.Term();
-        if (this.currentToken == TOKEN.PLUS || this.currentToken == TOKEN.MINUS) {
-            TOKEN lastToken = this.currentToken;
+        if (this.currentToken == Token.PLUS || this.currentToken == Token.MINUS) {
+            Token lastToken = this.currentToken;
             this.setNewCurrentToken();
             Exp exp2 = this.Expr();
-            return new BinaryExp(exp1, exp2, lastToken == TOKEN.PLUS ? OPERATOR.PLUS : OPERATOR.MINUS);
+            return new BinaryExp(exp1, exp2, lastToken == Token.PLUS ? BinaryOperator.PLUS : BinaryOperator.MINUS);
         }
         return exp1;
     }
 
     private Exp Term() throws Exception {
         Exp exp1 = this.Factor();
-        if (this.currentToken == TOKEN.MUL || this.currentToken == TOKEN.DIV) {
-            TOKEN lastToken = this.currentToken;
+        if (this.currentToken == Token.MUL || this.currentToken == Token.DIV) {
+            Token lastToken = this.currentToken;
             this.setNewCurrentToken();
             Exp exp2 = this.Expr();
-            return new BinaryExp(exp1, exp2, lastToken == TOKEN.MUL ? OPERATOR.MUL : OPERATOR.DIV);
+            return new BinaryExp(exp1, exp2, lastToken == Token.MUL ? BinaryOperator.MUL : BinaryOperator.DIV);
         }
         return exp1;
     }
@@ -127,24 +128,24 @@ public class RDParser extends Lexer {
             case OPAREN:
                 this.setNewCurrentToken();
                 exp = this.Expr();
-                if (this.currentToken == TOKEN.CPAREN) {
+                if (this.currentToken == Token.CPAREN) {
                     this.setNewCurrentToken();
                     return exp;
                 }
                 throw new Exception("Close parenthesis not found");
             case MINUS:
             case PLUS:
-                TOKEN lastToken = this.currentToken;
+                Token lastToken = this.currentToken;
                 this.setNewCurrentToken();
                 exp = this.Factor();
-                return new UnaryExp(exp, lastToken == TOKEN.PLUS ? OPERATOR.PLUS : OPERATOR.MINUS);
+                return new UnaryExp(exp, lastToken == Token.PLUS ? BinaryOperator.PLUS : BinaryOperator.MINUS);
             case QUOTED_STRING:
                 String quotedString = this.getQuotedString();
                 this.setNewCurrentToken();
                 return new StringConstant(quotedString);
             case TRUE:
             case FALSE:
-                boolean boolValue = this.currentToken == TOKEN.TRUE;
+                boolean boolValue = this.currentToken == Token.TRUE;
                 this.setNewCurrentToken();
                 return new BooleanConstant(boolValue);
             case VARIABLE_NAME:
@@ -175,12 +176,12 @@ public class RDParser extends Lexer {
                 throw new IllegalStateException("Expected STRING,BOOLEAN,DOUBLE value: " + this.currentToken);
         }
         this.setNewCurrentToken();
-        if (this.currentToken != TOKEN.VARIABLE_NAME) {
+        if (this.currentToken != Token.VARIABLE_NAME) {
             throw new Exception("Expected Variable name got " + this.currentToken);
         }
         this.symbolTable.declareVariable(this.getVariableName(), varType);
         this.setNewCurrentToken();
-        if (this.currentToken != TOKEN.SEMI) {
+        if (this.currentToken != Token.SEMI) {
             throw new Exception("Expected semi colon, got " + this.currentToken);
         }
         this.setNewCurrentToken();
@@ -190,12 +191,12 @@ public class RDParser extends Lexer {
     private Stmt AssignToVariable() throws Exception {
         String currentVariableName = this.getVariableName();
         this.setNewCurrentToken();
-        if (this.currentToken != TOKEN.ASSIGNMENT) {
+        if (this.currentToken != Token.ASSIGNMENT) {
             throw new Exception("Expected assignment, got " + this.currentToken);
         }
         this.setNewCurrentToken();
         Exp expressionToBeAssigned = Expr();
-        if (this.currentToken != TOKEN.SEMI) {
+        if (this.currentToken != Token.SEMI) {
             throw new Exception("Expected semi colon, got " + this.currentToken);
         }
         this.setNewCurrentToken();

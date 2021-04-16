@@ -1,6 +1,6 @@
 package lexer;
 
-public enum TOKEN {
+public enum Token {
     PLUS,
     MINUS,
     DIV,
@@ -20,5 +20,16 @@ public enum TOKEN {
     QUOTED_STRING,
     TRUE,
     FALSE,
-    ASSIGNMENT
+    ASSIGNMENT,
+// for relational operator support
+    EQ,
+    NEQ,
+    GT,
+    GTE,
+    LT,
+    LTE,
+// for logical operator support
+    AND,
+    OR,
+    NOT,
 }

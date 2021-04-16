@@ -1,13 +1,15 @@
-package ast;
+package ast.binaryOperations;
 
+import ast.Exp;
+import ast.RUNTIME_CONTEXT;
 import parser.Symbol;
 import parser.VAR_TYPE;
 
-public class BinaryPlus extends Exp{
+public class BinaryMinus extends Exp {
     private Exp leftExp;
     private Exp rightExp;
 
-    public BinaryPlus (Exp leftExp, Exp rightExp) {
+    public BinaryMinus (Exp leftExp, Exp rightExp) {
         this.leftExp = leftExp;
         this.rightExp = rightExp;
     }
@@ -23,11 +25,9 @@ public class BinaryPlus extends Exp{
         VAR_TYPE leftSymbolType = leftSymbol.getType();
         VAR_TYPE rightSymbolType = rightSymbol.getType();
         if (leftSymbolType == rightSymbolType && leftSymbolType == VAR_TYPE.NUMERIC) {
-            return new Symbol(leftSymbol.getNumericValue() + rightSymbol.getNumericValue());
-        } else if (leftSymbolType == rightSymbolType && leftSymbolType == VAR_TYPE.STRING) {
-            return new Symbol(leftSymbol.getStringValue() + rightSymbol.getStringValue());
-        }else {
-            throw new Exception("Type miss match for binary plus, got "+leftSymbolType+" and  "+rightSymbol);
+            return new Symbol(leftSymbol.getNumericValue() - rightSymbol.getNumericValue());
+        } else {
+            throw new Exception("Type miss match for binary minus, got "+leftSymbolType+" and  "+rightSymbol);
         }
     }
 }
