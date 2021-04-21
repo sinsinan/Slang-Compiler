@@ -2,6 +2,7 @@ package ast;
 
 import parser.Symbol;
 import parser.SymbolTable;
+import parser.VAR_TYPE;
 
 public class AssignmentStatement extends Stmt {
     private String variableName;
@@ -13,14 +14,18 @@ public class AssignmentStatement extends Stmt {
         this.exp = exp;
         this.symbolTable = symbolTable;
     }
+    private void typeCheck() throws Exception {
+        VAR_TYPE variableNameType = this.symbolTable.getSymbolFromVariableName(this.variableName).getType();
+        VAR_TYPE expType = this.exp.getType();
+        if (variableNameType != expType) {
+            throw new Exception("Unexpected assignment, Variable " + this.variableName + " with type " + variableNameType + " assigned value of type " + expType);
+        }
+    }
 
     @Override
     public boolean Evaluate(RUNTIME_CONTEXT context) throws Exception {
         Symbol symbolFromVariableName = this.symbolTable.getSymbolFromVariableName(this.variableName);
         Symbol symbolFromExpressionEvaluation = this.exp.Evaluate(context);
-        if (symbolFromExpressionEvaluation.getType() != symbolFromVariableName.getType()) {
-            throw new Exception("Unexpected assignment, Variable " + this.variableName + " with type " + symbolFromVariableName.getType() + " assigned value of type " + symbolFromExpressionEvaluation.getType());
-        }
         switch (symbolFromVariableName.getType()) {
             case NUMERIC:
                 this.symbolTable.setVariable(this.variableName, symbolFromExpressionEvaluation.getNumericValue());
