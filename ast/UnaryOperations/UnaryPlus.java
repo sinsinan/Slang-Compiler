@@ -9,15 +9,26 @@ import javax.naming.Context;
 
 public class UnaryPlus extends Exp {
     private Exp exp;
-    public UnaryPlus(Exp exp) {
+
+    public UnaryPlus(Exp exp) throws Exception {
         this.exp = exp;
+        this.typeCheck();
+    }
+
+    private void typeCheck() throws Exception {
+        VAR_TYPE expType = this.exp.getType();
+        if (expType != VAR_TYPE.NUMERIC) {
+            throw new Exception("Unary minus only applicable to NUMERIC TYPE, got " + expType);
+        }
     }
 
     public Symbol Evaluate(RUNTIME_CONTEXT context) throws Exception {
         Symbol evaluatedExp = this.exp.Evaluate(context);
-        if (evaluatedExp.getType() == VAR_TYPE.NUMERIC) {
-            return evaluatedExp;
-        }
-        throw new Exception("Unary plus only applicable to NUMERIC TYPE, got " + evaluatedExp.getType());
+        return evaluatedExp;
+    }
+
+    @Override
+    public VAR_TYPE getType() {
+        return VAR_TYPE.NUMERIC;
     }
 }
