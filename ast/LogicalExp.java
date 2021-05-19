@@ -44,11 +44,11 @@ public class LogicalExp extends Exp {
         switch (this._op){
             case AND:
                 leftSymbol = this._exp1.Evaluate(context);
-                rightSymbol = this._exp1.Evaluate(context);
+                rightSymbol = this._exp2.Evaluate(context);
                 return new Symbol(leftSymbol.getBooleanValue() && rightSymbol.getBooleanValue());
             case OR:
                 leftSymbol = this._exp1.Evaluate(context);
-                rightSymbol = this._exp1.Evaluate(context);
+                rightSymbol = this._exp2.Evaluate(context);
                 return new Symbol(leftSymbol.getBooleanValue() || rightSymbol.getBooleanValue());
             case NOT:
                 leftSymbol = this._exp1.Evaluate(context);

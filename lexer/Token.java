@@ -32,4 +32,15 @@ public enum Token {
     AND,
     OR,
     NOT,
+
+    CONTINUE,
+    BREAK,
+    WHILE,
+
+    OPEN_BRACE, // {
+    CLOSE_BRACE, // }
+
+    IF,
+    ELIF,
+    ELSE,
 }

@@ -17,6 +17,12 @@ public class KeyWordTable {
         this.keyWorkMap.put("BOOLEAN", Token.BOOLEAN);
         this.keyWorkMap.put("TRUE", Token.TRUE);
         this.keyWorkMap.put("FALSE", Token.FALSE);
+        this.keyWorkMap.put("continue", Token.CONTINUE);
+        this.keyWorkMap.put("break", Token.BREAK);
+        this.keyWorkMap.put("while", Token.WHILE);
+        this.keyWorkMap.put("if", Token.IF);
+        this.keyWorkMap.put("elif", Token.ELIF);
+        this.keyWorkMap.put("else", Token.ELSE);
         this.keyWordSet = this.keyWorkMap.keySet();
     }
 

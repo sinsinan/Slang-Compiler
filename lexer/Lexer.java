@@ -56,10 +56,18 @@ public class Lexer {
                 this.index++;
                 tok = Token.CPAREN;
                 break;
+            case '{':
+                this.index++;
+                tok = Token.OPEN_BRACE;
+                break;
+            case '}':
+                this.index++;
+                tok = Token.CLOSE_BRACE;
+                break;
             case '=':
                 this.index++;
                 tok = Token.ASSIGNMENT;
-                if (this.index < this.length && this.exp.charAt(this.index + 1) == '=') {
+                if (this.index < this.length && this.exp.charAt(this.index) == '=') {
                     this.index++;
                     tok = Token.EQ;
                 }
@@ -67,15 +75,15 @@ public class Lexer {
             case '<':
                 this.index++;
                 tok = Token.LT;
-                if (this.index< this.length) {
-                    switch (this.exp.charAt(this.index)){
+                if (this.index < this.length) {
+                    switch (this.exp.charAt(this.index)) {
                         case '>':
                             this.index++;
                             tok = Token.NEQ;
                             break;
                         case '=':
                             this.index++;
-                            tok=Token.LTE;
+                            tok = Token.LTE;
                             break;
                     }
                 }
@@ -89,14 +97,14 @@ public class Lexer {
                 }
                 break;
             case '&':
-                if ((this.index+1) < this.length && this.exp.charAt(this.index+1) == '&') {
-                    this.index+=2;
+                if ((this.index + 1) < this.length && this.exp.charAt(this.index + 1) == '&') {
+                    this.index += 2;
                     tok = Token.AND;
                     break;
                 }
             case '|':
-                if ((this.index+1) < this.length && this.exp.charAt(this.index+1) == '|') {
-                    this.index+=2;
+                if ((this.index + 1) < this.length && this.exp.charAt(this.index + 1) == '|') {
+                    this.index += 2;
                     tok = Token.OR;
                     break;
                 }
