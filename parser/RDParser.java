@@ -10,8 +10,9 @@ import lexer.Token;
 import java.util.ArrayList;
 import java.util.List;
 //<stmtList> := <statement>+
-//<statement> := <printStmt> | <printLineStmt> | <varDeclareStmt> | <varAssignmentStmt> | <singleWordStatement>
-//<varDeclareStmt> := STRING <varName>; | NUMERIC <varName>; | BOOLEAN <varName>;
+//<statement> := <printStmt> | <printLineStmt> | <varDeclareStmt> | <varAssignmentStmt> | <singleWordStatement> | <functionDeclarationStatement>
+//<varDeclareStmt> := <parseType> <varName>;
+// <parseType> := STRING | NUMERIC | BOOLEAN
 //<varAssignmentStmt> := <varName> = <Expr> ;
 //<printStmt> := print(<Expr>);
 //<printLineStmt>:= printLine(<Expr>);
@@ -19,12 +20,16 @@ import java.util.List;
 //<whileStmt> := while(<expr>)<blockOfStatements>
 //<blockOfStatements> := {<stmts>}
 //<singleWordStatement> := break; | continue;
+//<functionDeclarationStatement> := function <parseType> <varName> (<parseFormalParameters>) <blockOfStatements>
+
 
 //<expr> ::= <BExpr>  | <BExpr> LOGIC_OP <expr>
 //<BExpr> ::= <BExpr> | <BExpr> REL_OP <expr>
 //<RExpr> := <Term> | <Term> ADD_OP <RExpr>
 //<Term> := <Factor> | <Factor> MUL_OP <Term>
-//<Factor> := <number> | ( <expr> ) | {+|-|!} <factor> | TRUE | FALSE | quotedString
+//<Factor> := <number> | ( <expr> ) | {+|-|!} <factor> | TRUE | FALSE | quotedString | <functionCall>
+//<functionCall> := functionName ( <parseActualArguments>
+//<parseActualArguments> := <varName> , <parseActualArguments> | <varName> <parseActualArguments> | <Expr> , <parseActualArguments> | <Expr> <parseActualArguments> | );
 
 /// <LOGIC_OP> := '&&' | ‘||’
 /// <REL_OP> := '>' |' < '|' >=' |' <=' |' <>' |' =='
