@@ -1,21 +1,9 @@
 NUMERIC a;
 a = 1;
-while(a < 10) {
-    PRINTLINE(a);
     while(a < 10) {
-        PRINTLINE(a);
-        break;
-        a = a + 1;
+        if(a==1) {
+            PRINTLINE(1);
+            break;
+        }
+        a= a+1;
     }
-    break;
-    a = a + 1;
-}
-
-a = -1;
-if(a==2) {
-    PRINTLINE(2);
-} elif(a==1) {
-    PRINTLINE(1);
-} else {
-     PRINTLINE(0);
-}

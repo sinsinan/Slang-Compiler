@@ -1,8 +1,18 @@
 package parser;
 
+import ast.BlockedScopeStatements;
+import ast.Stmt;
+
+import java.util.List;
+import java.util.Map;
+
 public class Symbol {
     private VAR_TYPE type;
     private String value;
+
+    private VAR_TYPE returnType;
+    private Map<String, VAR_TYPE> formalArguments;
+    private BlockedScopeStatements blockedScopeStatements;
 
     public Symbol(boolean val) {
         this.type = VAR_TYPE.BOOLEAN;
@@ -23,6 +33,15 @@ public class Symbol {
         this.type = type;
     }
 
+    public Symbol(VAR_TYPE type, VAR_TYPE returnType, Map<String, VAR_TYPE> formalArguments) throws Exception {
+        if (type != VAR_TYPE.FUNCTION) {
+            throw new Exception("Expected type to be FUNCTION, got " + type);
+        }
+        this.type = type;
+        this.returnType = returnType;
+        this.formalArguments = formalArguments;
+    }
+
     public void setValue(boolean val) throws Exception {
         if (this.type != VAR_TYPE.BOOLEAN) {
             throw new Exception("Cannot assign boolean to the variable of type " + this.type);
@@ -35,6 +54,13 @@ public class Symbol {
             throw new Exception("Cannot assign double to the variable of type " + this.type);
         }
         this.value = String.valueOf(val);
+    }
+
+    public void setValue(BlockedScopeStatements blockedScopeStatements) throws Exception {
+        if (this.type != VAR_TYPE.FUNCTION) {
+            throw new Exception("Cannot assign stmtList to the variable of type " + this.type);
+        }
+        this.blockedScopeStatements = blockedScopeStatements;
     }
 
     public void setValue(String val) throws Exception {
@@ -67,5 +93,21 @@ public class Symbol {
 
     public VAR_TYPE getType() {
         return type;
+    }
+
+    public VAR_TYPE getReturnType() {
+        return returnType;
+    }
+
+    public Map<String, VAR_TYPE> getFormalArguments() {
+        return formalArguments;
+    }
+
+    public BlockedScopeStatements getBlockedScopeStatements() {
+        return this.blockedScopeStatements;
+    }
+
+    public void removeValue() {
+        this.value = null;
     }
 }

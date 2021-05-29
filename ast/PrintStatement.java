@@ -10,9 +10,9 @@ public class PrintStatement extends Stmt{
     }
 
     @Override
-    public boolean Evaluate(RUNTIME_CONTEXT context) throws Exception {
+    public Terminate Evaluate(RUNTIME_CONTEXT context) throws Exception {
         Symbol val = this.exp.Evaluate(context);
         System.out.print(val.getStringValue());
-        return true;
+        return null;
     }
 }

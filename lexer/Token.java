@@ -43,4 +43,9 @@ public enum Token {
     IF,
     ELIF,
     ELSE,
+
+    FUNCTION,
+    RETURN,
+
+    COMMA,;
 }
