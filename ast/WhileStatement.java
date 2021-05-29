@@ -3,37 +3,35 @@ package ast;
 import parser.Symbol;
 import parser.VAR_TYPE;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WhileStatement extends Stmt {
-    private Exp exp;
-    private List<Stmt> stmtList;
+    private ExpAndBlockedScopeStatements expAndBlockedScopeStatements;
 
-    public WhileStatement(Exp exp, List<Stmt> stmtList) {
-        this.exp = exp;
-        this.stmtList = stmtList;
+    public WhileStatement(ExpAndBlockedScopeStatements expAndBlockedScopeStatements) {
+        this.expAndBlockedScopeStatements = expAndBlockedScopeStatements;
     }
 
     @Override
-    public boolean Evaluate(RUNTIME_CONTEXT context) throws Exception {
+    public Terminate Evaluate(RUNTIME_CONTEXT context) throws Exception {
         OuterLoop:
         while (this.isWhileComplete(context)) {
-            for (Stmt stmt : this.stmtList) {
-                if (stmt.getClass() == BreakStatement.class) {
+            for (Stmt stmt : this.expAndBlockedScopeStatements.getBlockedScopeStatements().getStmtList()) {
+                Terminate t = stmt.Evaluate(context);
+                if (t == null) {
+                    continue;
+                } else if (BreakStatement.class.equals(t.getTerminatedStmtClass())) {
                     break OuterLoop;
-                }
-                if (stmt.getClass() == ContinueStatement.class) {
+                } else if (ContinueStatement.class.equals(t.getTerminatedStmtClass())) {
                     break;
+                } else {
+                    return t;
                 }
-                stmt.Evaluate(context);
             }
         }
-        return true;
+        return null;
     }
 
     private boolean isWhileComplete(RUNTIME_CONTEXT context) throws Exception {
-        Symbol val = this.exp.Evaluate(context);
+        Symbol val = this.expAndBlockedScopeStatements.getExp().Evaluate(context);
         if (val.getType() != VAR_TYPE.BOOLEAN) {
             throw new Exception("Expected Expression of while to be a boolean, got " + val.getType());
         }

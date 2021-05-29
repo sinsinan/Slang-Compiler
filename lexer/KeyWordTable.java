@@ -9,7 +9,7 @@ public class KeyWordTable {
     private Set<String> keyWordSet;
 
     public KeyWordTable() {
-        this.keyWorkMap = new HashMap<String, Token>();
+        this.keyWorkMap = new HashMap<>();
         this.keyWorkMap.put("PRINT", Token.PRINT);
         this.keyWorkMap.put("PRINTLINE", Token.PRINTLN);
         this.keyWorkMap.put("STRING", Token.STRING);
@@ -23,6 +23,8 @@ public class KeyWordTable {
         this.keyWorkMap.put("if", Token.IF);
         this.keyWorkMap.put("elif", Token.ELIF);
         this.keyWorkMap.put("else", Token.ELSE);
+        this.keyWorkMap.put("function", Token.FUNCTION);
+        this.keyWorkMap.put("return", Token.RETURN);
         this.keyWordSet = this.keyWorkMap.keySet();
     }
 

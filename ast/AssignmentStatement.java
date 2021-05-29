@@ -1,21 +1,21 @@
 package ast;
 
 import parser.Symbol;
-import parser.SymbolTable;
+import parser.ScopeInfo;
 import parser.VAR_TYPE;
 
 public class AssignmentStatement extends Stmt {
     private String variableName;
     private Exp exp;
-    private SymbolTable symbolTable;
+    private ScopeInfo scopeInfo;
 
-    public AssignmentStatement(String variableName, Exp exp, SymbolTable symbolTable) {
+    public AssignmentStatement(String variableName, Exp exp, ScopeInfo scopeInfo) {
         this.variableName = variableName;
         this.exp = exp;
-        this.symbolTable = symbolTable;
+        this.scopeInfo = scopeInfo;
     }
     private void typeCheck() throws Exception {
-        VAR_TYPE variableNameType = this.symbolTable.getSymbolFromVariableName(this.variableName).getType();
+        VAR_TYPE variableNameType = this.scopeInfo.getSymbolFromVariableName(this.variableName).getType();
         VAR_TYPE expType = this.exp.getType();
         if (variableNameType != expType) {
             throw new Exception("Unexpected assignment, Variable " + this.variableName + " with type " + variableNameType + " assigned value of type " + expType);
@@ -23,20 +23,20 @@ public class AssignmentStatement extends Stmt {
     }
 
     @Override
-    public boolean Evaluate(RUNTIME_CONTEXT context) throws Exception {
-        Symbol symbolFromVariableName = this.symbolTable.getSymbolFromVariableName(this.variableName);
+    public Terminate Evaluate(RUNTIME_CONTEXT context) throws Exception {
+        Symbol symbolFromVariableName = this.scopeInfo.getSymbolFromVariableName(this.variableName);
         Symbol symbolFromExpressionEvaluation = this.exp.Evaluate(context);
         switch (symbolFromVariableName.getType()) {
             case NUMERIC:
-                this.symbolTable.setVariable(this.variableName, symbolFromExpressionEvaluation.getNumericValue());
+                this.scopeInfo.setVariable(this.variableName, symbolFromExpressionEvaluation.getNumericValue());
                 break;
             case STRING:
-                this.symbolTable.setVariable(this.variableName, symbolFromExpressionEvaluation.getStringValue());
+                this.scopeInfo.setVariable(this.variableName, symbolFromExpressionEvaluation.getStringValue());
                 break;
             case BOOLEAN:
-                this.symbolTable.setVariable(this.variableName, symbolFromExpressionEvaluation.getBooleanValue());
+                this.scopeInfo.setVariable(this.variableName, symbolFromExpressionEvaluation.getBooleanValue());
                 break;
         }
-        return true;
+        return null;
     }
 }
