@@ -1,3 +1,3 @@
 # Slang-Compiler
 
-A slang compilor in java
+Slang compilor in java
