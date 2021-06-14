@@ -1,7 +1,5 @@
 package ast;
 
-import parser.Symbol;
-
 public class Terminate {
     private Class terminatedStmtClass;
     private Symbol terminatedSymbol;

@@ -28,6 +28,10 @@ public class Lexer {
                 this.index++;
                 tok = this.getToken();
                 break;
+            case ',':
+                this.index++;
+                tok = Token.COMMA;
+                break;
             case ';':
                 this.index++;
                 tok = Token.SEMI;

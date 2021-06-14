@@ -1,23 +1,20 @@
 package ast.binaryOperations;
 
-import ast.Exp;
-import ast.RUNTIME_CONTEXT;
-import parser.Symbol;
-import parser.VAR_TYPE;
+import ast.*;
 
 public class BinaryMult extends Exp {
     private Exp leftExp;
     private Exp rightExp;
 
-    public BinaryMult(Exp leftExp, Exp rightExp) throws Exception {
+    public BinaryMult(COMPILATION_CONTEXT context, Exp leftExp, Exp rightExp) throws Exception {
         this.leftExp = leftExp;
         this.rightExp = rightExp;
-        this.typeCheck();
+        this.typeCheck(context);
     }
 
-    private void typeCheck() throws Exception {
-        VAR_TYPE leftSymbolType = this.leftExp.getType();
-        VAR_TYPE rightSymbolType = this.rightExp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context) throws Exception {
+        VAR_TYPE leftSymbolType = this.leftExp.getType(context);
+        VAR_TYPE rightSymbolType = this.rightExp.getType(context);
         if (leftSymbolType == rightSymbolType && leftSymbolType == VAR_TYPE.NUMERIC) {
             return;
         } else {
@@ -33,13 +30,13 @@ public class BinaryMult extends Exp {
     }
 
     private Symbol typeCheckAndGetSymbol(Symbol leftSymbol, Symbol rightSymbol) throws Exception {
-        VAR_TYPE leftSymbolType = leftSymbol.getType();
-        VAR_TYPE rightSymbolType = rightSymbol.getType();
+//        VAR_TYPE leftSymbolType = leftSymbol.getType();
+//        VAR_TYPE rightSymbolType = rightSymbol.getType();
         return new Symbol(leftSymbol.getNumericValue() * rightSymbol.getNumericValue());
     }
 
     @Override
-    public VAR_TYPE getType() {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) {
         return VAR_TYPE.NUMERIC;
     }
 }

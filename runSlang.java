@@ -1,4 +1,5 @@
 import ast.Exp;
+import ast.RUNTIME_CONTEXT;
 import ast.Stmt;
 import parser.RDParser;
 
@@ -14,8 +15,9 @@ public class runSlang {
             String content = Files.readString(Path.of("./HelloWorld.sin"));
             RDParser p = new RDParser(content);
             List<Stmt> stmtList = p.getStmtList();
+            RUNTIME_CONTEXT runtimeContext = new RUNTIME_CONTEXT();
             for (Stmt stmt : stmtList) {
-                stmt.Evaluate(null);
+                stmt.Evaluate(runtimeContext);
             }
         }
         catch (IOException e)

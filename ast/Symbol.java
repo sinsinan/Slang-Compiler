@@ -1,32 +1,31 @@
-package parser;
+package ast;
 
-import ast.BlockedScopeStatements;
-import ast.Stmt;
-
-import java.util.List;
 import java.util.Map;
 
 public class Symbol {
     private VAR_TYPE type;
-    private String value;
+    private String stringValue;
+    private Boolean booleanValue;
+    private Double doubleValue;
 
-    private VAR_TYPE returnType;
-    private Map<String, VAR_TYPE> formalArguments;
-    private BlockedScopeStatements blockedScopeStatements;
+    private VAR_TYPE functionReturnType;
+    private Map<String, VAR_TYPE> functionFormalArguments;
+    private BlockedScopeStatements functionBlockedScopeStatements;
+    private RUNTIME_CONTEXT functionRuntimeContext;
 
     public Symbol(boolean val) {
         this.type = VAR_TYPE.BOOLEAN;
-        this.value = String.valueOf(val);
+        this.booleanValue = val;
     }
 
     public Symbol(double val) {
         this.type = VAR_TYPE.NUMERIC;
-        this.value = String.valueOf(val);
+        this.doubleValue = val;
     }
 
     public Symbol(String val) {
         this.type = VAR_TYPE.STRING;
-        this.value = val;
+        this.stringValue = val;
     }
 
     public Symbol(VAR_TYPE type) {
@@ -38,57 +37,72 @@ public class Symbol {
             throw new Exception("Expected type to be FUNCTION, got " + type);
         }
         this.type = type;
-        this.returnType = returnType;
-        this.formalArguments = formalArguments;
+        this.functionReturnType = returnType;
+        this.functionFormalArguments = formalArguments;
     }
 
     public void setValue(boolean val) throws Exception {
         if (this.type != VAR_TYPE.BOOLEAN) {
             throw new Exception("Cannot assign boolean to the variable of type " + this.type);
         }
-        this.value = String.valueOf(val);
+        this.booleanValue = val;
     }
 
     public void setValue(double val) throws Exception {
         if (this.type != VAR_TYPE.NUMERIC) {
             throw new Exception("Cannot assign double to the variable of type " + this.type);
         }
-        this.value = String.valueOf(val);
+        this.doubleValue = val;
     }
 
     public void setValue(BlockedScopeStatements blockedScopeStatements) throws Exception {
         if (this.type != VAR_TYPE.FUNCTION) {
             throw new Exception("Cannot assign stmtList to the variable of type " + this.type);
         }
-        this.blockedScopeStatements = blockedScopeStatements;
+        this.functionBlockedScopeStatements = blockedScopeStatements;
+    }
+
+    public void setValue(RUNTIME_CONTEXT functionRuntimeContext) throws Exception {
+        if (this.type != VAR_TYPE.FUNCTION) {
+            throw new Exception("Cannot assign stmtList to the variable of type " + this.type);
+        }
+        this.functionRuntimeContext = functionRuntimeContext;
     }
 
     public void setValue(String val) throws Exception {
         if (this.type != VAR_TYPE.STRING) {
             throw new Exception("Cannot assign String to the variable of type " + this.type);
         }
-        this.value = val;
+        this.stringValue = val;
     }
 
     public boolean getBooleanValue() throws Exception {
-        if (this.value == null) {
+        if (this.booleanValue == null) {
             throw new Exception("Variable not initialized");
         }
-        return Boolean.valueOf(this.value);
+        return this.booleanValue;
     }
 
     public double getNumericValue() throws Exception {
-        if (this.value == null) {
+        if (this.doubleValue == null) {
             throw new Exception("Variable not initialized");
         }
-        return Double.valueOf(this.value);
+        return this.doubleValue;
     }
 
     public String getStringValue() throws Exception {
-        if (this.value == null) {
-            throw new Exception("Variable not initialized");
+        switch (this.type) {
+            case NUMERIC:
+                return this.doubleValue.toString();
+            case STRING:
+                return this.stringValue;
+            case BOOLEAN:
+                return this.getStringValue();
+//            case FUNCTION: //TODO add proper
+//                return this.functionReturnType;
+            default:
+                throw new Exception("String of variable not found");
         }
-        return this.value;
     }
 
     public VAR_TYPE getType() {
@@ -96,18 +110,18 @@ public class Symbol {
     }
 
     public VAR_TYPE getReturnType() {
-        return returnType;
+        return functionReturnType;
     }
 
     public Map<String, VAR_TYPE> getFormalArguments() {
-        return formalArguments;
+        return functionFormalArguments;
     }
 
     public BlockedScopeStatements getBlockedScopeStatements() {
-        return this.blockedScopeStatements;
+        return this.functionBlockedScopeStatements;
     }
 
-    public void removeValue() {
-        this.value = null;
+    public RUNTIME_CONTEXT getFunctionRuntimeContext() {
+        return functionRuntimeContext;
     }
 }

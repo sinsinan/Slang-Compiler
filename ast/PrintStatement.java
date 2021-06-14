@@ -1,7 +1,5 @@
 package ast;
 
-import parser.Symbol;
-
 public class PrintStatement extends Stmt{
     private Exp exp;
 

@@ -1,8 +1,5 @@
 package ast;
 
-import parser.Symbol;
-import parser.VAR_TYPE;
-
 public class BooleanConstant extends Exp{
     private Symbol symbol;
 
@@ -16,7 +13,7 @@ public class BooleanConstant extends Exp{
     }
 
     @Override
-    public VAR_TYPE getType() throws Exception {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) throws Exception {
         return VAR_TYPE.BOOLEAN;
     }
 }

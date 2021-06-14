@@ -1,9 +1,13 @@
-NUMERIC a;
-a = 1;
-    while(a < 10) {
-        if(a==1) {
-            PRINTLINE(1);
-            break;
+function NUMERIC factorial(NUMERIC a) {
+    if(a==1) {
+        while(a >= 0) {
+        STRING a;
+        a = "cds";
+        PRINTLINE(a);
+        return 1;
         }
-        a= a+1;
     }
+    return a * factorial(a-1);
+ }
+
+PRINTLINE(factorial(4));

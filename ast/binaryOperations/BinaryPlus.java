@@ -1,23 +1,20 @@
 package ast.binaryOperations;
 
-import ast.Exp;
-import ast.RUNTIME_CONTEXT;
-import parser.Symbol;
-import parser.VAR_TYPE;
+import ast.*;
 
 public class BinaryPlus extends Exp {
     private Exp leftExp;
     private Exp rightExp;
 
-    public BinaryPlus(Exp leftExp, Exp rightExp) throws Exception {
+    public BinaryPlus(COMPILATION_CONTEXT context, Exp leftExp, Exp rightExp) throws Exception {
         this.leftExp = leftExp;
         this.rightExp = rightExp;
-        this.typeCheck();
+        this.typeCheck(context);
     }
 
-    private void typeCheck() throws Exception {
-        VAR_TYPE leftSymbolType = this.leftExp.getType();
-        VAR_TYPE rightSymbolType = this.rightExp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context) throws Exception {
+        VAR_TYPE leftSymbolType = this.leftExp.getType(context);
+        VAR_TYPE rightSymbolType = this.rightExp.getType(context);
         if (leftSymbolType == rightSymbolType && (leftSymbolType == VAR_TYPE.NUMERIC || leftSymbolType == VAR_TYPE.STRING)) {
             return;
         } else {
@@ -42,12 +39,12 @@ public class BinaryPlus extends Exp {
     }
 
     @Override
-    public VAR_TYPE getType() throws Exception {
-        if (this.leftExp.getType() == this.rightExp.getType() && this.rightExp.getType() == VAR_TYPE.NUMERIC) {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) throws Exception {
+        if (this.leftExp.getType(context) == this.rightExp.getType(context) && this.rightExp.getType(context) == VAR_TYPE.NUMERIC) {
             return VAR_TYPE.NUMERIC;
-        } else if (this.leftExp.getType() == this.rightExp.getType() && this.rightExp.getType() == VAR_TYPE.STRING) {
+        } else if (this.leftExp.getType(context) == this.rightExp.getType(context) && this.rightExp.getType(context) == VAR_TYPE.STRING) {
             return VAR_TYPE.STRING;
         }
-        throw new Exception("Type miss match for binary plus, got " + this.leftExp.getType() + " and  " + this.rightExp.getType());
+        throw new Exception("Type miss match for binary plus, got " + this.leftExp.getType(context) + " and  " + this.rightExp.getType(context));
     }
 }

@@ -1,8 +1,5 @@
 package ast;
 
-import parser.Symbol;
-import parser.VAR_TYPE;
-
 public class ReturnStmt extends Stmt {
     private Exp exp;
 
@@ -15,7 +12,7 @@ public class ReturnStmt extends Stmt {
         return new Terminate(this.getClass(), this.exp.Evaluate(context));
     }
 
-    public VAR_TYPE getType() throws Exception {
-       return this.exp.getType();
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) throws Exception {
+       return this.exp.getType(context);
     }
 }

@@ -1,22 +1,17 @@
 package ast.UnaryOperations;
 
-import ast.Exp;
-import ast.RUNTIME_CONTEXT;
-import parser.Symbol;
-import parser.VAR_TYPE;
-
-import javax.naming.Context;
+import ast.*;
 
 public class UnaryPlus extends Exp {
     private Exp exp;
 
-    public UnaryPlus(Exp exp) throws Exception {
+    public UnaryPlus(COMPILATION_CONTEXT context, Exp exp) throws Exception {
         this.exp = exp;
-        this.typeCheck();
+        this.typeCheck(context);
     }
 
-    private void typeCheck() throws Exception {
-        VAR_TYPE expType = this.exp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context) throws Exception {
+        VAR_TYPE expType = this.exp.getType(context);
         if (expType != VAR_TYPE.NUMERIC) {
             throw new Exception("Unary minus only applicable to NUMERIC TYPE, got " + expType);
         }
@@ -28,7 +23,7 @@ public class UnaryPlus extends Exp {
     }
 
     @Override
-    public VAR_TYPE getType() {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) {
         return VAR_TYPE.NUMERIC;
     }
 }
