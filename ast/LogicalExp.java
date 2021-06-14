@@ -1,36 +1,34 @@
 package ast;
 
 import ast.operators.LogicalOperator;
-import parser.Symbol;
-import parser.VAR_TYPE;
 
 public class LogicalExp extends Exp {
     private Exp _exp1, _exp2;
     private LogicalOperator _op;
 
-    public LogicalExp(Exp exp1, Exp exp2, LogicalOperator op) throws Exception {
+    public LogicalExp(COMPILATION_CONTEXT context, Exp exp1, Exp exp2, LogicalOperator op) throws Exception {
         this._exp1 = exp1;
         this._exp2 = exp2;
         this._op = op;
-        this.typeCheck(this._exp1, this._exp2);
+        this.typeCheck(context, this._exp1, this._exp2);
     }
 
-    public LogicalExp(Exp exp1, LogicalOperator op) throws Exception {
+    public LogicalExp(COMPILATION_CONTEXT context, Exp exp1, LogicalOperator op) throws Exception {
         this._exp1 = exp1;
         this._op = op;
-        this.typeCheck(this._exp1);
+        this.typeCheck(context, this._exp1);
     }
 
-    private void typeCheck(Exp leftExp, Exp rightExp) throws Exception {
-        VAR_TYPE leftExpType = leftExp.getType();
-        VAR_TYPE rightExpType = rightExp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context, Exp leftExp, Exp rightExp) throws Exception {
+        VAR_TYPE leftExpType = leftExp.getType(context);
+        VAR_TYPE rightExpType = rightExp.getType(context);
         if (leftExpType != rightExpType && leftExpType != VAR_TYPE.BOOLEAN) {
             throw new Exception("Expected "+leftExpType+" and "+rightExpType+" to be BOOLEAN");
         }
     }
 
-    private void typeCheck(Exp leftExp) throws Exception {
-        VAR_TYPE leftExpType = leftExp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context, Exp leftExp) throws Exception {
+        VAR_TYPE leftExpType = leftExp.getType(context);
         if (leftExpType != VAR_TYPE.BOOLEAN) {
             throw new Exception("Expected "+leftExpType+" to be BOOLEAN");
         }
@@ -58,7 +56,7 @@ public class LogicalExp extends Exp {
     }
 
     @Override
-    public VAR_TYPE getType() {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) {
         return VAR_TYPE.BOOLEAN;
     }
 }

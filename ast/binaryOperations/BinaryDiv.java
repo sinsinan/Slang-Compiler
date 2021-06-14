@@ -1,23 +1,20 @@
 package ast.binaryOperations;
 
-import ast.Exp;
-import ast.RUNTIME_CONTEXT;
-import parser.Symbol;
-import parser.VAR_TYPE;
+import ast.*;
 
 public class BinaryDiv extends Exp {
     private Exp leftExp;
     private Exp rightExp;
 
-    public BinaryDiv(Exp leftExp, Exp rightExp) throws Exception {
+    public BinaryDiv(COMPILATION_CONTEXT context, Exp leftExp, Exp rightExp) throws Exception {
         this.leftExp = leftExp;
         this.rightExp = rightExp;
-        this.typeCheck();
+        this.typeCheck(context);
     }
 
-    private void typeCheck() throws Exception {
-        VAR_TYPE leftSymbolType = this.leftExp.getType();
-        VAR_TYPE rightSymbolType = this.rightExp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context) throws Exception {
+        VAR_TYPE leftSymbolType = this.leftExp.getType(context);
+        VAR_TYPE rightSymbolType = this.rightExp.getType(context);
         if (leftSymbolType == rightSymbolType && leftSymbolType == VAR_TYPE.NUMERIC) {
             return;
         } else {
@@ -37,7 +34,7 @@ public class BinaryDiv extends Exp {
     }
 
     @Override
-    public VAR_TYPE getType() {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) {
         return VAR_TYPE.NUMERIC;
     }
 }

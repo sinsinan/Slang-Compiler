@@ -41,11 +41,11 @@ import java.util.List;
 
 public class RDParser extends Lexer {
     private Token currentToken;
-    ScopeInfo scopeInfo;
+    private COMPILATION_CONTEXT compilationContext;
 
     public RDParser(String exp) {
         super(exp);
-        this.scopeInfo = new ScopeInfo();
+        this.compilationContext = new COMPILATION_CONTEXT();
     }
 
     public List<Stmt> getStmtList() throws Exception {
@@ -104,11 +104,17 @@ public class RDParser extends Lexer {
     }
 
     private Stmt returnStatement() throws Exception {
+        this.setNewCurrentToken();
         Exp exp = this.Expr();
+        if (this.currentToken != Token.SEMI) {
+            throw new Exception("Expected Semi colon, got " + this.currentToken);
+        }
+        this.setNewCurrentToken();
         return new ReturnStmt(exp);
     }
 
     private Stmt functionDefinition() throws Exception {
+        this.setNewCurrentToken();
         VAR_TYPE returnType = this.parseType();
         this.setNewCurrentToken();
         if (this.currentToken == Token.VARIABLE_NAME) {
@@ -116,10 +122,13 @@ public class RDParser extends Lexer {
             this.setNewCurrentToken();
             if (this.currentToken == Token.OPAREN) {
                 LinkedHashMap<String, VAR_TYPE> formalArguments = this.parseFormalArguments();
-                FunctionDefinitionStatement functionDefinitionStatement = new FunctionDefinitionStatement(this.scopeInfo, returnType, functionName, formalArguments);
+                COMPILATION_CONTEXT functionCompilationContext = new COMPILATION_CONTEXT(this.compilationContext);
+                FunctionDefinitionStatement functionDefinitionStatement = new FunctionDefinitionStatement(this.compilationContext, functionCompilationContext, returnType, functionName, formalArguments);
+                this.compilationContext = functionCompilationContext;
                 this.setNewCurrentToken();
                 BlockedScopeStatements blockedScopeStatements = this.getBlockOfStatements();
                 functionDefinitionStatement.setBlockedScopeStatements(blockedScopeStatements);
+                this.compilationContext = this.compilationContext.getParentContext();
                 return functionDefinitionStatement;
             }
             throw new Exception("Expected token to be OPEN PARENTHESIS got " + this.currentToken);
@@ -128,7 +137,6 @@ public class RDParser extends Lexer {
     }
 
     private VAR_TYPE parseType() throws Exception {
-        this.setNewCurrentToken();
         switch (this.currentToken) {
             case STRING:
                 return VAR_TYPE.STRING;
@@ -144,10 +152,10 @@ public class RDParser extends Lexer {
 
     private LinkedHashMap<String, VAR_TYPE> parseFormalArguments() throws Exception {
         LinkedHashMap<String, VAR_TYPE> formalArguments = new LinkedHashMap<String, VAR_TYPE>();
-        VAR_TYPE formalArgumentType;
+        VAR_TYPE formalArgumentType = null;
         String formalArgumentName;
         this.setNewCurrentToken();
-        while (this.currentToken == Token.CPAREN) {
+        while (this.currentToken != Token.CPAREN) {
             formalArgumentType = this.parseType();
             this.setNewCurrentToken();
             if (this.currentToken != Token.VARIABLE_NAME) {
@@ -167,24 +175,28 @@ public class RDParser extends Lexer {
     }
 
     private Stmt IfStmt() throws Exception {
-        List<ExpAndBlockedScopeStatements> expAndBlockedScopeStatementsArray = new ArrayList<ExpAndBlockedScopeStatements>();
-        expAndBlockedScopeStatementsArray.add(this.parseExpressionAndStatements());
+        List<ExpContextAndBlockedScopeStatements> expContextAndBlockedScopeStatementsArray = new ArrayList<>();
+
+        expContextAndBlockedScopeStatementsArray.add(this.parseExpressionAndStatements());
         while (this.currentToken == Token.ELIF) {
-            expAndBlockedScopeStatementsArray.add(this.parseExpressionAndStatements());
+            expContextAndBlockedScopeStatementsArray.add(this.parseExpressionAndStatements());
         }
         if (this.currentToken == Token.ELSE) {
             this.setNewCurrentToken();
-            expAndBlockedScopeStatementsArray.add(new ExpAndBlockedScopeStatements(new BooleanConstant(true), this.getBlockOfStatements()));
+            this.compilationContext = new COMPILATION_CONTEXT(this.compilationContext.getParentContext());
+            expContextAndBlockedScopeStatementsArray.add(new ExpContextAndBlockedScopeStatements(this.compilationContext, new BooleanConstant(true), this.getBlockOfStatements()));
+            this.compilationContext = this.compilationContext.getParentContext();
         }
-        return new IfStatement(expAndBlockedScopeStatementsArray);
+        return new IfStatement(expContextAndBlockedScopeStatementsArray);
     }
 
     private Stmt WhileStmt() throws Exception {
-        ExpAndBlockedScopeStatements expAndBlockedScopeStatements = this.parseExpressionAndStatements();
-        return new WhileStatement(expAndBlockedScopeStatements);
+        ExpContextAndBlockedScopeStatements expContextAndBlockedScopeStatements = this.parseExpressionAndStatements();
+        return new WhileStatement(expContextAndBlockedScopeStatements);
     }
 
-    private ExpAndBlockedScopeStatements parseExpressionAndStatements() throws Exception {
+    private ExpContextAndBlockedScopeStatements parseExpressionAndStatements() throws Exception {
+        this.compilationContext = new COMPILATION_CONTEXT(this.compilationContext);
         this.setNewCurrentToken();
         if (this.currentToken == Token.OPAREN) {
             this.setNewCurrentToken();
@@ -192,8 +204,9 @@ public class RDParser extends Lexer {
             if (this.currentToken == Token.CPAREN) {
                 this.setNewCurrentToken();
                 BlockedScopeStatements blockedScopeStatements = this.getBlockOfStatements();
-                ExpAndBlockedScopeStatements expAndBlockedScopeStatements = new ExpAndBlockedScopeStatements(exp, blockedScopeStatements);
-                return expAndBlockedScopeStatements;
+                ExpContextAndBlockedScopeStatements expContextAndBlockedScopeStatements = new ExpContextAndBlockedScopeStatements(this.compilationContext, exp, blockedScopeStatements);
+                this.compilationContext = this.compilationContext.getParentContext();
+                return expContextAndBlockedScopeStatements;
             }
 
             throw new Exception("Expected Close Parenthesis, got " + this.currentToken);
@@ -204,8 +217,7 @@ public class RDParser extends Lexer {
     private BlockedScopeStatements getBlockOfStatements() throws Exception {
         if (this.currentToken == Token.OPEN_BRACE) {
             this.setNewCurrentToken();
-            BlockedScopeStatements blockedScopeStatements = new BlockedScopeStatements(this.scopeInfo);
-            this.scopeInfo = blockedScopeStatements.getScopeInfo();
+            BlockedScopeStatements blockedScopeStatements = new BlockedScopeStatements();
             List<Stmt> stmtList = new ArrayList();
             Stmt currentStatement;
             while (this.currentToken != Token.CLOSE_BRACE) {
@@ -216,7 +228,6 @@ public class RDParser extends Lexer {
             }
             this.setNewCurrentToken();
             blockedScopeStatements.setStmtList(stmtList);
-            this.scopeInfo = blockedScopeStatements.getParentScopeInfo();
             return blockedScopeStatements;
         }
         throw new Exception("Expected OPEN_BRACE, got " + this.currentToken);
@@ -271,7 +282,7 @@ public class RDParser extends Lexer {
             Token lastToken = this.currentToken;
             this.setNewCurrentToken();
             Exp exp2 = this.Expr();
-            return new LogicalExp(exp1, exp2, lastToken == Token.AND ? LogicalOperator.AND : LogicalOperator.OR);
+            return new LogicalExp(this.compilationContext, exp1, exp2, lastToken == Token.AND ? LogicalOperator.AND : LogicalOperator.OR);
         }
         return exp1;
     }
@@ -282,7 +293,7 @@ public class RDParser extends Lexer {
             Token lastToken = this.currentToken;
             this.setNewCurrentToken();
             Exp exp2 = this.Expr();
-            return new RelationalExp(exp1, exp2, this.getRelationalOperator(lastToken));
+            return new RelationalExp(this.compilationContext, exp1, exp2, this.getRelationalOperator(lastToken));
         }
         return exp1;
     }
@@ -312,7 +323,7 @@ public class RDParser extends Lexer {
             Token lastToken = this.currentToken;
             this.setNewCurrentToken();
             Exp exp2 = this.RExpr();
-            return new BinaryExp(exp1, exp2, lastToken == Token.PLUS ? BinaryOperator.PLUS : BinaryOperator.MINUS);
+            return new BinaryExp(this.compilationContext, exp1, exp2, lastToken == Token.PLUS ? BinaryOperator.PLUS : BinaryOperator.MINUS);
         }
         return exp1;
     }
@@ -323,7 +334,7 @@ public class RDParser extends Lexer {
             Token lastToken = this.currentToken;
             this.setNewCurrentToken();
             Exp exp2 = this.Expr();
-            return new BinaryExp(exp1, exp2, lastToken == Token.MUL ? BinaryOperator.MUL : BinaryOperator.DIV);
+            return new BinaryExp(this.compilationContext, exp1, exp2, lastToken == Token.MUL ? BinaryOperator.MUL : BinaryOperator.DIV);
         }
         return exp1;
     }
@@ -348,11 +359,11 @@ public class RDParser extends Lexer {
                 Token lastToken = this.currentToken;
                 this.setNewCurrentToken();
                 exp = this.Factor();
-                return new UnaryExp(exp, lastToken == Token.PLUS ? BinaryOperator.PLUS : BinaryOperator.MINUS);
+                return new UnaryExp(this.compilationContext, exp, lastToken == Token.PLUS ? BinaryOperator.PLUS : BinaryOperator.MINUS);
             case NOT:
                 this.setNewCurrentToken();
                 exp = this.Factor();
-                return new LogicalExp(exp, LogicalOperator.NOT);
+                return new LogicalExp(this.compilationContext, exp, LogicalOperator.NOT);
             case QUOTED_STRING:
                 String quotedString = this.getQuotedString();
                 this.setNewCurrentToken();
@@ -363,10 +374,10 @@ public class RDParser extends Lexer {
                 this.setNewCurrentToken();
                 return new BooleanConstant(boolValue);
             case VARIABLE_NAME:
-                if (this.scopeInfo.getSymbolFromVariableName(this.getVariableName()).getType() == VAR_TYPE.FUNCTION) {
+                if (this.compilationContext.getScopeInfo().getSymbolFromVariableName(this.getVariableName()).getType() == VAR_TYPE.FUNCTION) {
                     return this.FunctionCall(this.getVariableName());
                 }
-                Variable variable = new Variable(this.getVariableName(), this.scopeInfo);
+                Variable variable = new Variable(this.getVariableName());
                 this.setNewCurrentToken();
                 return variable;
             default:
@@ -380,10 +391,9 @@ public class RDParser extends Lexer {
             throw new Exception("Invalid token at ParseFunctionCall expected OPAREN got " + this.currentToken);
         }
         this.setNewCurrentToken();
-        List<Exp> actualArgumentExpList=  new ArrayList<>();
-        while (this.currentToken == Token.CPAREN) {
+        List<Exp> actualArgumentExpList = new ArrayList<>();
+        while (this.currentToken != Token.CPAREN) {
             actualArgumentExpList.add(Expr());
-            this.setNewCurrentToken();
             if (this.currentToken == Token.COMMA) {
                 this.setNewCurrentToken();
             } else {
@@ -393,7 +403,8 @@ public class RDParser extends Lexer {
         if (this.currentToken != Token.CPAREN) {
             throw new Exception("Invalid token at ParseFunctionCall expected CPAREN got " + this.currentToken);
         }
-        return new FunctionCallStatement(functionName, this.scopeInfo, actualArgumentExpList);
+        this.setNewCurrentToken();
+        return new FunctionCallStatement(this.compilationContext, functionName, actualArgumentExpList);
     }
 
     private void setNewCurrentToken() throws Exception {
@@ -420,7 +431,7 @@ public class RDParser extends Lexer {
             throw new Exception("Expected Variable name got " + this.currentToken);
         }
 //        this.scopeInfo.declareVariable(this.getVariableName(), varType);
-        VariableDeclarationStmt variableDeclarationStmt = new VariableDeclarationStmt(this.scopeInfo, this.getVariableName(), varType);
+        VariableDeclarationStmt variableDeclarationStmt = new VariableDeclarationStmt(this.compilationContext, this.getVariableName(), varType);
         this.setNewCurrentToken();
         if (this.currentToken != Token.SEMI) {
             throw new Exception("Expected semi colon, got " + this.currentToken);
@@ -441,6 +452,6 @@ public class RDParser extends Lexer {
             throw new Exception("Expected semi colon, got " + this.currentToken);
         }
         this.setNewCurrentToken();
-        return new AssignmentStatement(currentVariableName, expressionToBeAssigned, this.scopeInfo);
+        return new AssignmentStatement(this.compilationContext, currentVariableName, expressionToBeAssigned);
     }
 }

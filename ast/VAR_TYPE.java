@@ -1,4 +1,4 @@
-package parser;
+package ast;
 
 public enum VAR_TYPE {
     STRING,

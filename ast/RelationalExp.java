@@ -1,23 +1,21 @@
 package ast;
 
 import ast.operators.RelationalOperator;
-import parser.Symbol;
-import parser.VAR_TYPE;
 
 public class RelationalExp extends Exp{
     Exp leftExp;
     Exp rightExp;
     RelationalOperator op;
 
-    public RelationalExp(Exp leftExp, Exp rightExp, RelationalOperator op) throws Exception {
+    public RelationalExp(COMPILATION_CONTEXT context, Exp leftExp, Exp rightExp, RelationalOperator op) throws Exception {
         this.leftExp = leftExp;
         this.rightExp = rightExp;
         this.op = op;
-        this.typeCheck();
+        this.typeCheck(context);
     }
-    private void typeCheck() throws Exception {
-        VAR_TYPE leftExpType = this.leftExp.getType();
-        VAR_TYPE rightExpType = this.rightExp.getType();
+    private void typeCheck(COMPILATION_CONTEXT context) throws Exception {
+        VAR_TYPE leftExpType = this.leftExp.getType(context);
+        VAR_TYPE rightExpType = this.rightExp.getType(context);
         if (leftExpType == rightExpType) {
             if (leftExpType == VAR_TYPE.BOOLEAN){
                 switch (this.op) {
@@ -80,7 +78,7 @@ public class RelationalExp extends Exp{
     }
 
     @Override
-    public VAR_TYPE getType() throws Exception {
+    public VAR_TYPE getType(COMPILATION_CONTEXT context) throws Exception {
         return VAR_TYPE.BOOLEAN;
     }
 }
