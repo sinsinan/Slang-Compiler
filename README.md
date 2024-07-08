@@ -1,1 +1,3 @@
-# Slang compilor ported to java with lexical scoping
+# Slang compilor
+
+ported to java with lexical scoping
